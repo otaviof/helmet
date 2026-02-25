@@ -8,7 +8,6 @@ import (
 	"github.com/redhat-appstudio/helmet/internal/config"
 	"github.com/redhat-appstudio/helmet/internal/flags"
 	"github.com/redhat-appstudio/helmet/internal/k8s"
-	"github.com/redhat-appstudio/helmet/internal/printer"
 	"github.com/redhat-appstudio/helmet/internal/resolver"
 	"github.com/redhat-appstudio/helmet/internal/runcontext"
 
@@ -136,8 +135,6 @@ func (c *Config) Validate() error {
 // runCreate runs create action, makes sure a new configuration is applied in the
 // cluster and update when using the --force flag.
 func (c *Config) runCreate() error {
-	printer.Disclaimer()
-
 	c.log().Debug("Loading configuration from file")
 	cfg, err := config.NewConfigFromFile(
 		c.runCtx.ChartFS, c.configPath, c.namespace, c.appCtx.IdentifierName())
@@ -262,9 +259,6 @@ func NewConfig(
 ) api.SubCommand {
 	configDesc := fmt.Sprintf(`
 Manages installer's cluster configuration.
-
-It should only be used to for experimental deployments. Production
-deployments are not supported.
 
 Before "%s deploy", you need to
 create a cluster configuration, responsible to define all installation settings

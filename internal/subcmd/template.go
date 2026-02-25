@@ -120,7 +120,7 @@ The Template subcommand is used to render the values template file and,
 optionally, the Helm chart manifests. It is particularly useful for
 troubleshooting and developing Helm charts for the installation process.
 
-By using the '--show-manifest=false' flag, only the global values template
+By using the '--show-manifests=false' flag, only the global values template
 ('--values-template') will be rendered as YAML, thus the last argument, with the
 Helm chart directory, optional.
 

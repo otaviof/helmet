@@ -12,7 +12,6 @@ import (
 	"github.com/redhat-appstudio/helmet/internal/installer"
 	"github.com/redhat-appstudio/helmet/internal/integrations"
 	"github.com/redhat-appstudio/helmet/internal/k8s"
-	"github.com/redhat-appstudio/helmet/internal/printer"
 	"github.com/redhat-appstudio/helmet/internal/resolver"
 	"github.com/redhat-appstudio/helmet/internal/runcontext"
 
@@ -77,8 +76,6 @@ func (d *Deploy) Validate() error {
 
 // Run deploys the enabled dependencies listed on the configuration.
 func (d *Deploy) Run() error {
-	printer.Disclaimer()
-
 	d.log().Debug("Reading values template file")
 	valuesTmpl, err := d.runCtx.ChartFS.ReadFile(d.valuesTemplatePath)
 	if err != nil {
@@ -176,9 +173,6 @@ func NewDeploy(
 ) api.SubCommand {
 	deployDesc := fmt.Sprintf(`
 Deploys the %s platform components.
-
-It should only be used to for experimental deployments. Production
-deployments are not supported.
 
 The installer looks at the configuration to identify the products to be
 installed, and the dependencies to be resolved.
