@@ -49,6 +49,14 @@ IMAGE_NAMESPACE ?= helmet
 IMAGE_TAG ?= $(COMMIT_ID)
 IMAGE ?= $(IMAGE_REPOSITORY)/$(IMAGE_NAMESPACE)/$(EXAMPLE_APP):$(IMAGE_TAG)
 
+# Modules to ignore in govulncheck (space-separated).
+GOVULNCHECK_IGNORE_MODULES ?= stdlib toolchain
+
+# Vulnerability IDs to ignore in govulncheck (space-separated). IDs are used
+# literally don't use quotes, just split the IDs using spaces.
+# Example: GO-2026-4514 GO-2025-1234
+GOVULNCHECK_IGNORE_IDS ?= GO-2026-4514
+
 .EXPORT_ALL_VARIABLES:
 
 .DEFAULT_GOAL := build
@@ -178,9 +186,10 @@ lint: installer-tarball
 #
 
 # Scans for known vulnerabilities in dependencies.
+# Stdlib/toolchain findings are filtered (see hack/govulncheck.sh).
 .PHONY: govulncheck
 govulncheck:
-	go tool govulncheck ./...
+	@hack/govulncheck.sh
 
 # Runs all security checks.
 .PHONY: security

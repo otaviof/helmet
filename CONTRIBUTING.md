@@ -15,6 +15,7 @@ Detailed documentation for framework internals lives in [`docs/`](docs/). See th
 - [GNU Make][gnuMake]
 - [GNU Tar][gnuTar] (macOS: `brew install gnu-tar`)
 - [Docker][docker] or [Podman][podman] (for container images)
+- [jq][jq] (for security scanning with `make security`)
 
 # Building
 
@@ -123,6 +124,36 @@ Vulnerability scanning uses [`govulncheck`][govulncheck] to check dependencies f
 make security
 ```
 
+### `stdlib`/Toolchain Filtering
+
+The project pins the Go version for hermetic builds. Since the Go version cannot be upgraded independently, `govulncheck` findings in the Go standard library or toolchain are automatically filtered.
+
+`govulncheck` lacks built-in suppression ([golang/go#59507](https://github.com/golang/go/issues/59507)). The [`hack/govulncheck.sh`](./hack/govulncheck.sh) wrapper script works around this by:
+
+1. Running `govulncheck -format json` to get machine-readable output
+2. Using `jq` to filter findings by module name and/or vulnerability ID
+3. Reporting only actionable (non-ignored) vulnerabilities with links to `https://pkg.go.dev/vuln/<ID>`
+
+The wrapper is controlled by the following environment variables:
+
+| Variable                     | Default | Purpose                                       |
+| ---------------------------- | ------- | --------------------------------------------- |
+| `GOVULNCHECK_IGNORE_MODULES` | Empty   | Space-separated module names to suppress      |
+| `GOVULNCHECK_IGNORE_IDS`     | Empty   | Space-separated vulnerability IDs to suppress |
+| `GOVULNCHECK_PACKAGES`       | `./...` | Package pattern passed to govulncheck         |
+
+Examples:
+
+```bash
+# Skip a specific vulnerability by ID.
+make security GOVULNCHECK_IGNORE_IDS="GO-2026-4514"
+
+# Disable all filtering (report everything).
+make security GOVULNCHECK_IGNORE_MODULES="" GOVULNCHECK_IGNORE_IDS=""
+```
+
+**Note:** `jq` is required for security scanning (see [Prerequisites](#prerequisites)).
+
 # Pull Request Checklist
 
 Before submitting a PR, verify:
@@ -143,5 +174,6 @@ Before submitting a PR, verify:
 [golangciLint]: https://golangci-lint.run
 [gomega]: https://onsi.github.io/gomega
 [govulncheck]: https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck
+[jq]: https://jqlang.github.io/jq/
 [kind]: https://kind.sigs.k8s.io
 [podman]: https://podman.io
