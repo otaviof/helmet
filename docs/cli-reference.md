@@ -189,7 +189,7 @@ helmet-ex mcp-server [flags]
 
 | Flag | Description |
 |------|-------------|
-| `--image` | Container image for installer (overrides default from `WithMCPImage()`) |
+| `--image` | Container image for installer (overrides default from `WithImage()`) |
 
 **Behavior:**
 - Reads `instructions.md` from installer filesystem as server instructions
