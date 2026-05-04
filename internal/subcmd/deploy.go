@@ -8,14 +8,17 @@ import (
 
 	"github.com/redhat-appstudio/helmet/api"
 	"github.com/redhat-appstudio/helmet/internal/config"
+	"github.com/redhat-appstudio/helmet/internal/engine"
 	"github.com/redhat-appstudio/helmet/internal/flags"
 	"github.com/redhat-appstudio/helmet/internal/installer"
 	"github.com/redhat-appstudio/helmet/internal/integrations"
 	"github.com/redhat-appstudio/helmet/internal/k8s"
+	"github.com/redhat-appstudio/helmet/internal/printer"
 	"github.com/redhat-appstudio/helmet/internal/resolver"
 	"github.com/redhat-appstudio/helmet/internal/runcontext"
 
 	"github.com/spf13/cobra"
+	"helm.sh/helm/v3/pkg/chartutil"
 )
 
 // Deploy is the deploy subcommand.
@@ -116,6 +119,39 @@ subcommand to configure them. For example:
 		deps = append(deps, *dep)
 	}
 
+	ctx := d.cmd.Context()
+
+	d.log().Debug("Preparing values template context")
+	variables := engine.NewVariables()
+	if err = variables.SetInstaller(d.cfg); err != nil {
+		return err
+	}
+	if err = variables.SetOpenShift(ctx, d.runCtx.Kube); err != nil {
+		return err
+	}
+
+	d.log().Debug("Rendering values template")
+	renderedBytes, err := engine.NewEngine(d.runCtx.Kube, string(valuesTmpl)).
+		Render(variables)
+	if err != nil {
+		return err
+	}
+
+	if d.flags.Verbose {
+		d.log().Debug("Showing raw results of rendered values template")
+		fmt.Printf("#\n# Values (Raw)\n#\n\n%s\n", renderedBytes)
+	}
+
+	d.log().Debug("Parsing rendered values")
+	values, err := chartutil.ReadValues(renderedBytes)
+	if err != nil {
+		return err
+	}
+
+	if d.flags.Verbose {
+		printer.ValuesPrinter("Values", values)
+	}
+
 	for index, dep := range deps {
 		fmt.Printf("\n\n%s\n", strings.Repeat("#", 60))
 		fmt.Printf(
@@ -128,22 +164,7 @@ subcommand to configure them. For example:
 		fmt.Printf("%s\n", strings.Repeat("#", 60))
 
 		i := installer.NewInstaller(d.log(), d.flags, d.runCtx.Kube, &dep, d.installerTarball)
-
-		ctx := d.cmd.Context()
-		err := i.SetValues(ctx, d.cfg, string(valuesTmpl))
-		if err != nil {
-			return err
-		}
-		if d.flags.Verbose {
-			i.PrintRawValues()
-		}
-
-		if err := i.RenderValues(); err != nil {
-			return err
-		}
-		if d.flags.Verbose {
-			i.PrintValues()
-		}
+		i.SetRenderedValues(renderedBytes, values)
 
 		if err = i.Install(ctx); err != nil {
 			return err
