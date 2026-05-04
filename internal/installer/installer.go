@@ -75,6 +75,13 @@ func (i *Installer) PrintValues() {
 	printer.ValuesPrinter("Values", i.values)
 }
 
+// SetRenderedValues sets pre-rendered values directly, bypassing template
+// rendering and YAML parsing.
+func (i *Installer) SetRenderedValues(renderedBytes []byte, values chartutil.Values) {
+	i.valuesBytes = renderedBytes
+	i.values = values
+}
+
 // Install performs the installation of the Helm chart.
 func (i *Installer) Install(ctx context.Context) error {
 	if i.values == nil {
