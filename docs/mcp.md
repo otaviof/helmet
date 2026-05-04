@@ -12,7 +12,7 @@ Configure your MCP client to run your installer binary with the `mcp-server` sub
 helmet-ex mcp-server
 ```
 
-The MCP server requires a [container image](#container-image-for-job-based-deployment) for Job-based deployments, configured via `WithMCPImage()` at framework initialization or overridden with `--image` at runtime.
+The MCP server requires a [container image](#container-image-for-job-based-deployment) for Job-based deployments, configured via `WithImage()` at framework initialization or overridden with `--image` at runtime.
 
 ### Client Configuration
 
@@ -74,7 +74,7 @@ When `deploy` is invoked, the MCP server — authenticated via the user's kubeco
 1. **`ServiceAccount`** named `{appName}` in the installer namespace (via [server-side apply](https://kubernetes.io/docs/reference/using-api/server-side-apply/))
 2. **`ClusterRoleBinding`** named `{appName}`, binding the `ServiceAccount` to the `cluster-admin` `ClusterRole` (via server-side apply)
 3. **`Job`** named `{appName}-deploy-job` (via `Create` — only one Job is allowed; use `force: true` to replace an existing one) with:
-   - Container image: the consumer's installer application image (from `WithMCPImage()` or `--image`)
+   - Container image: the consumer's installer application image (from `WithImage()` or `--image`)
    - Args: `["deploy"]` (with optional `--verbose`, `--dry-run`)
    - Env: `KUBECONFIG=""` (forces [in-cluster authentication](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#service-account-tokens))
    - RestartPolicy: `Never`, BackoffLimit: `0`
@@ -105,11 +105,11 @@ make image IMAGE_REPOSITORY="quay.io/redhat-appstudio"
 make image-push
 ```
 
-`WithMCPImage()` is **required** at framework initialization — the framework returns an error if no image is configured. This value becomes the default for the optional `--image` flag, which overrides it at runtime.
+`WithImage()` is no longer required at framework initialization. The `mcp-server` subcommand validates the image at runtime via `Complete()`. This value becomes the default for the optional `--image` flag, which overrides it at runtime.
 
 ```go
-// At framework initialization (required) — from helmet-ex/main.go
-framework.WithMCPImage("quay.io/redhat-appstudio/helmet-ex:latest")
+// At framework initialization — from helmet-ex/main.go
+framework.WithImage("quay.io/redhat-appstudio/helmet-ex:latest")
 ```
 
 ```sh

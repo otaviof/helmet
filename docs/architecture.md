@@ -169,7 +169,7 @@ appCtx := api.NewAppContext("helmet-ex",
 ```go
 app, _ := framework.NewAppFromTarball(appCtx, installer.InstallerTarball, cwd,
     framework.WithIntegrations(appIntegrations...),
-    framework.WithMCPImage(mcpImage),
+    framework.WithImage(mcpImage),
 )
 ```
 

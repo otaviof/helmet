@@ -194,7 +194,7 @@ func NewAppFromTarball(
 | `appCtx` | `*api.AppContext` | Application metadata (name, version, namespace, descriptions) |
 | `tarball` | `[]byte` | Embedded installer tarball bytes |
 | `cwd` | `string` | Current working directory for local filesystem overlay |
-| `opts` | `...Option` | Functional options (integrations, MCP image, etc.) |
+| `opts` | `...Option` | Functional options (integrations, image, etc.) |
 
 **Internal flow**:
 1. Convert tarball bytes to `fs.FS` via `NewTarFS(tarball)`

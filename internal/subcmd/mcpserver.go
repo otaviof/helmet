@@ -41,6 +41,10 @@ func (m *MCPServer) Cmd() *cobra.Command {
 
 // Complete implements api.SubCommand.
 func (m *MCPServer) Complete(_ []string) error {
+	if m.image == "" {
+		return fmt.Errorf(
+			"container image not configured: use WithImage() option or --image flag")
+	}
 	return nil
 }
 

@@ -101,7 +101,7 @@ app, err := framework.NewAppFromTarball(
     installer.InstallerTarball,
     cwd,
     framework.WithIntegrations(appIntegrations...),
-    framework.WithMCPImage(mcpImage),
+    framework.WithImage(mcpImage),
 )
 if err != nil {
     fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -118,7 +118,7 @@ if err := app.Run(); err != nil {
 - `api.NewAppContext()` creates application metadata with functional options
 - `framework.NewAppFromTarball()` constructs the app from the embedded tarball
 - The `cwd` parameter enables the [overlay filesystem](installer-structure.md#overlay-filesystem) for development
-- `framework.WithMCPImage()` sets the container image for [MCP Job-based deployments](mcp.md#container-image-for-job-based-deployment)
+- `framework.WithImage()` sets the container image for [MCP Job-based deployments](mcp.md#container-image-for-job-based-deployment)
 
 ## Building
 

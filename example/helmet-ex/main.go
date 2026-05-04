@@ -26,7 +26,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// 3. Build MCP image reference
+	// 3. Build image reference
 	mcpImage := buildMCPImage()
 
 	// 4. Create application with framework options (GitHub URLs via CustomURLProvider; see framework/integrations.go)
@@ -37,7 +37,7 @@ func main() {
 		installer.InstallerTarball,
 		cwd,
 		framework.WithIntegrations(appIntegrations...),
-		framework.WithMCPImage(mcpImage),
+		framework.WithImage(mcpImage),
 	)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -78,7 +78,7 @@ operators, storage, networking, integrations, and product layers.`),
 	)
 }
 
-// buildMCPImage constructs the container image reference for the MCP server.
+// buildMCPImage constructs the container image reference for the installer.
 // Uses the commit ID for versioning when available, falls back to 'latest'.
 func buildMCPImage() string {
 	mcpImage := "quay.io/redhat-appstudio/helmet-ex"

@@ -17,11 +17,16 @@ func WithIntegrations(modules ...api.IntegrationModule) Option {
 	}
 }
 
-// WithMCPImage sets the container image for the MCP server.
-func WithMCPImage(image string) Option {
+// WithImage sets the container image for the installer.
+func WithImage(image string) Option {
 	return func(a *App) {
-		a.mcpImage = image
+		a.image = image
 	}
+}
+
+// Deprecated: use WithImage instead.
+func WithMCPImage(image string) Option {
+	return WithImage(image)
 }
 
 // WithMCPToolsBuilder sets the MCP tools builder for the application.

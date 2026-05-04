@@ -30,7 +30,7 @@ type App struct {
 	kube               *k8s.Kube               // kubernetes client
 
 	mcpToolsBuilder  mcptools.MCPToolsBuilder // tools builder
-	mcpImage         string                   // installer image
+	image            string                   // installer image
 	installerTarball []byte                   // embedded installer tarball
 }
 
@@ -94,18 +94,12 @@ func (a *App) setupRootCmd() error {
 		mcpBuilder = subcmd.StandardMCPToolsBuilder()
 	}
 
-	// Validate MCP image is configured.
-	if a.mcpImage == "" {
-		return fmt.Errorf(
-			"MCP server image not configured: use WithMCPImage() option")
-	}
-
 	// Other subcommands via api.Runner.
 	subs := []api.SubCommand{
 		subcmd.NewConfig(a.AppCtx, runCtx, a.flags),
 		subcmd.NewDeploy(a.AppCtx, runCtx, a.flags, a.integrationManager, a.installerTarball),
 		subcmd.NewInstaller(a.AppCtx, runCtx, a.flags, a.installerTarball),
-		subcmd.NewMCPServer(a.AppCtx, runCtx, a.flags, a.integrationManager, mcpBuilder, a.mcpImage),
+		subcmd.NewMCPServer(a.AppCtx, runCtx, a.flags, a.integrationManager, mcpBuilder, a.image),
 		subcmd.NewTemplate(a.AppCtx, runCtx, a.flags, a.installerTarball),
 		subcmd.NewTopology(a.AppCtx, runCtx),
 	}
@@ -154,7 +148,7 @@ func NewApp(
 //   - appCtx: Application metadata (name, version, etc.)
 //   - tarball: Embedded installer tarball bytes
 //   - cwd: Current working directory for local filesystem overlay
-//   - opts: Additional runtime options (integrations, MCP image, etc.)
+//   - opts: Additional runtime options (integrations, image, etc.)
 //
 // The function creates an overlay filesystem combining the embedded tarball
 // contents with the local filesystem at cwd, then initializes the App.
